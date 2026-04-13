@@ -1,4 +1,5 @@
 @preconcurrency import AVFoundation
+import CoreGraphics
 import CoreMedia
 import Foundation
 
@@ -6,7 +7,7 @@ enum VideoMetadataReader {
     /// Upper bound on timed metadata groups per track (avoids huge outputs).
     private static let maxTimedMetadataGroups = 5000
 
-    static func readPayload(url: URL) async throws -> [String: Any] {
+    static func readPayload(url: URL) async throws -> (payload: [String: Any], resolution: [String: Int]?) {
         let asset = AVURLAsset(
             url: url,
             options: [
@@ -18,6 +19,13 @@ enum VideoMetadataReader {
             asset,
             keys: ["duration", "tracks", "metadata", "commonMetadata"]
         )
+
+        var resolution: [String: Int]?
+        let videoTracks = asset.tracks(withMediaType: .video)
+        if let videoTrack = videoTracks.first {
+            try await loadVideoTrackDimensionValues(videoTrack)
+            resolution = videoDisplayResolutionPixels(videoTrack)
+        }
 
         let containerMetadata = try await resolveMetadataItems(asset.metadata)
         let commonMetadata = try await resolveMetadataItems(asset.commonMetadata)
@@ -32,13 +40,14 @@ enum VideoMetadataReader {
             trackPayloads.append(summary)
         }
 
-        return [
+        let payload: [String: Any] = [
             "container": [
                 "metadata": containerMetadata,
                 "commonMetadata": commonMetadata,
             ],
             "metadataTracks": trackPayloads,
         ]
+        return (payload, resolution)
     }
 
     private static func loadAssetValues(_ asset: AVAsset, keys: [String]) async throws {
@@ -60,6 +69,46 @@ enum VideoMetadataReader {
                 }
             }
         }
+    }
+
+    private static func loadVideoTrackDimensionValues(_ track: AVAssetTrack) async throws {
+        let keys = [
+            "naturalSize",
+            "preferredTransform",
+        ]
+        try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
+            track.loadValuesAsynchronously(forKeys: keys) {
+                var failure: Error?
+                for key in keys {
+                    var error: NSError?
+                    let status = track.statusOfValue(forKey: key, error: &error)
+                    if status == .failed {
+                        failure = error ?? MediaMetadataError.videoReadFailed(reason: "Failed loading video track \(key)")
+                        break
+                    }
+                }
+                if let failure {
+                    continuation.resume(throwing: failure)
+                } else {
+                    continuation.resume()
+                }
+            }
+        }
+    }
+
+    /// Display pixel dimensions after applying `preferredTransform` (e.g. 90° rotation).
+    private static func videoDisplayResolutionPixels(_ track: AVAssetTrack) -> [String: Int]? {
+        let size = track.naturalSize
+        guard size.width.isFinite, size.height.isFinite, size.width > 0, size.height > 0 else {
+            return nil
+        }
+        let rect = CGRect(origin: .zero, size: size).applying(track.preferredTransform)
+        let width = Int(abs(rect.width).rounded())
+        let height = Int(abs(rect.height).rounded())
+        guard width > 0, height > 0 else {
+            return nil
+        }
+        return ["width": width, "height": height]
     }
 
     private static func loadTrackValues(_ track: AVAssetTrack) async throws {

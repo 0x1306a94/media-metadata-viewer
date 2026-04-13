@@ -22,18 +22,26 @@ struct MediaMetadataViewer: AsyncParsableCommand {
         switch mediaKind {
         case .image:
             let properties = try ImageMetadataReader.readProperties(url: url)
-            payload = [
+            var imagePayload: [String: Any] = [
                 "mediaKind": mediaKind.rawValue,
                 "utType": utType.identifier,
                 "properties": JSONCompatibleValue.convert(properties),
             ]
+            if let resolution = ImageMetadataReader.resolutionPixels(from: properties) {
+                imagePayload["resolution"] = resolution
+            }
+            payload = imagePayload
         case .video:
-            let videoPayload = try await VideoMetadataReader.readPayload(url: url)
-            payload = [
+            let (videoPayload, resolution) = try await VideoMetadataReader.readPayload(url: url)
+            var videoRoot: [String: Any] = [
                 "mediaKind": mediaKind.rawValue,
                 "utType": utType.identifier,
                 "video": videoPayload,
             ]
+            if let resolution {
+                videoRoot["resolution"] = resolution
+            }
+            payload = videoRoot
         }
 
         try MetadataOutput.write(payload, format: format)

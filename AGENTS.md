@@ -12,10 +12,10 @@
 | 文件                          | 职责                                                                                        |
 | --------------------------- | ----------------------------------------------------------------------------------------- |
 | `TypeDetection.swift`       | UTType / 扩展名 / 文件头 sniff，分流 image vs video                                                |
-| `ImageMetadata.swift`       | `CGImageSourceCopyPropertiesAtIndex`                                                      |
-| `VideoMetadata.swift`       | `AVURLAsset`、metadata 项、`AVAssetReaderOutputMetadataAdaptor` + `nextTimedMetadataGroup()` |
-| `JSONCompatibleValue.swift` | 转为可 JSON 序列化结构；浮点须 `isFinite`（避免 NaN 写 JSON 崩溃）                                           |
-| `MetadataOutput.swift`      | `--format text|json`、`OutputFormat`                                                       |
+| `ImageMetadata.swift`       | `CGImageSourceCopyPropertiesAtIndex`；`resolutionPixels(from:)`（PixelWidth/Height）         |
+| `VideoMetadata.swift`       | `AVURLAsset`、metadata 项、首条视频轨分辨率（`naturalSize`+`preferredTransform`）、`AVAssetReaderOutputMetadataAdaptor` |
+| `JSONCompatibleValue.swift` | 转为可 JSON 序列化结构；浮点须 `isFinite`（避免 NaN 写 JSON 崩溃）|
+| `MetadataOutput.swift`      | `format text/json` `OutputFormat` |
 | `MediaMetadataError.swift`  | `LocalizedError`                                                                          |
 
 

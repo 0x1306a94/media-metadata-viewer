@@ -58,12 +58,14 @@ media-metadata-viewer --path <文件路径> [--format text|json]
 
 - `mediaKind`: `"image"`
 - `utType`: 统一类型标识符字符串
+- `resolution`（可选）: `{ "width": <Int>, "height": <Int> }`，来自 ImageIO `PixelWidth` / `PixelHeight`
 - `properties`: ImageIO 属性字典（已做 JSON 友好转换；二进制为带 `base64` 的对象）
 
 **视频**
 
 - `mediaKind`: `"video"`
 - `utType`
+- `resolution`（可选）: `{ "width": <Int>, "height": <Int> }`，取**第一条视频轨**的 `naturalSize` 并应用 `preferredTransform`（与常见播放器显示方向一致）；纯音频等无视频轨时省略
 - `video`
   - `container`
     - `metadata` / `commonMetadata`：`AVMetadataItem` 解析后的条目数组

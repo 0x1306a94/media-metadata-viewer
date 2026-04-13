@@ -11,4 +11,21 @@ enum ImageMetadataReader {
         }
         return properties
     }
+
+    /// Pixel dimensions from ImageIO top-level properties when present.
+    static func resolutionPixels(from properties: [String: Any]) -> [String: Int]? {
+        let widthKey = kCGImagePropertyPixelWidth as String
+        let heightKey = kCGImagePropertyPixelHeight as String
+        guard let widthNumber = properties[widthKey] as? NSNumber,
+              let heightNumber = properties[heightKey] as? NSNumber
+        else {
+            return nil
+        }
+        let width = Int(widthNumber.doubleValue.rounded())
+        let height = Int(heightNumber.doubleValue.rounded())
+        guard width > 0, height > 0 else {
+            return nil
+        }
+        return ["width": width, "height": height]
+    }
 }
