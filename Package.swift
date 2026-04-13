@@ -6,7 +6,7 @@ import PackageDescription
 let package = Package(
     name: "media-metadata-viewer",
     platforms: [
-        .macOS(.v10_15),
+        .macOS(.v11),
     ],
     dependencies: [
         .package(id: "apple.swift-argument-parser", exact: "1.7.1"),
@@ -18,6 +18,11 @@ let package = Package(
             name: "media-metadata-viewer",
             dependencies: [
                 .product(name: "ArgumentParser", package: "apple.swift-argument-parser"),
+            ],
+            linkerSettings: [
+                .linkedFramework("ImageIO"),
+                .linkedFramework("AVFoundation"),
+                .linkedFramework("UniformTypeIdentifiers"),
             ]),
     ]
 )
