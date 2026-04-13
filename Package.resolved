@@ -1,0 +1,14 @@
+{
+  "originHash" : "577cbeb2da31af8fd78ead9160e8e3a3a5e5ecacddf00c203346dc6f83fa860e",
+  "pins" : [
+    {
+      "identity" : "apple.swift-argument-parser",
+      "kind" : "registry",
+      "location" : "",
+      "state" : {
+        "version" : "1.7.1"
+      }
+    }
+  ],
+  "version" : 3
+}

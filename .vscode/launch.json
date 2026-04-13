@@ -1,0 +1,22 @@
+{
+    "configurations": [
+        {
+            "type": "lldb",
+            "request": "launch",
+            "args": [],
+            "cwd": "${workspaceFolder:media-metadata-viewer}",
+            "name": "Debug media-metadata-viewer",
+            "program": "${workspaceFolder:media-metadata-viewer}/.build/debug/media-metadata-viewer",
+            "preLaunchTask": "swift: Build Debug media-metadata-viewer"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "args": [],
+            "cwd": "${workspaceFolder:media-metadata-viewer}",
+            "name": "Release media-metadata-viewer",
+            "program": "${workspaceFolder:media-metadata-viewer}/.build/release/media-metadata-viewer",
+            "preLaunchTask": "swift: Build Release media-metadata-viewer"
+        }
+    ]
+}
